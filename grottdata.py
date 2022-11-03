@@ -149,18 +149,21 @@ def procdata(conf,data):
                 # There is enough data for an inverter serial number
                 inverterType = "default"
 
-                inverterSerial = result_string[76:96]
-                inverterSerial = codecs.decode(inverterSerial, "hex").decode('utf-8')
-                if conf.verbose:
-                    print("\t - Possible Inverter serial", inverterSerial)
+                try:
+                    inverterSerial = codecs.decode(result_string[76:96], "hex").decode('utf-8')
+                    if conf.verbose:
+                        print("\t - Possible Inverter serial", inverterSerial)
+                except UnicodeError:
+                    inverterSerial = None
 
                 # Lookup inverter type based on inverter serial
-                try:
-                    inverterType = conf.invtypemap[inverterSerial]
-                    print("\t - Matched inverter serial to inverter type", inverterType)
-                except:
-                    inverterType = "default"
-                    print("\t - Inverter serial not recognised - using inverter type", inverterType)
+                if inverterSerial:
+                    try:
+                        inverterType = conf.invtypemap[inverterSerial]
+                        print("\t - Matched inverter serial to inverter type", inverterType)
+                    except:
+                        inverterType = "default"
+                        print("\t - Inverter serial not recognised - using inverter type", inverterType)
 
                 if (inverterType != "default") :
                     layout = layout + inverterType.upper()
